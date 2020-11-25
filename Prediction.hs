@@ -147,7 +147,3 @@ parse args = mapM_ putStrLn args
 
 main = getArgs >>= parse
 
---TODO
---check the string for parameters
---Aggregate all numbers in a function
---use CSV for both
