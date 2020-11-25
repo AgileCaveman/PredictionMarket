@@ -70,12 +70,12 @@ probRange :: MarketAndPayout -> ProbRange
 probRange = getProbabilityRange . market
 
 getUpdateRangeFromProbabilityRanges :: ProbRange-> ProbRange -> (Double, Double)
-getUpdateRangeFromProbabilityRanges old new = (scoringBrier (weightedProb new) - scoringBrier (weightedProb old), scoringBrier (1 - weighted1mProb new) - scoringBrier (1 - weighted1mProb old))
+getUpdateRangeFromProbabilityRanges old new = (scoringBrier (1 - weighted1mProb old) - scoringBrier (1 - weighted1mProb new),  scoringBrier (weightedProb old) - (scoringBrier (weightedProb new)))
 
 getBetFromMaxLoss :: MarketState -> Bet -> Double
 getBetFromMaxLoss ms bet =
   let pRange = getProbabilityRange ms
-  in let probDiff = if' (probability bet < weightedProb pRange) (scoringBrier (1 - weighted1mProb pRange) - scoringBrier (1 - probability bet)) (scoringBrier (weightedProb pRange) - scoringBrier (probability bet))
+  in let probDiff = if' (probability bet < weightedProb pRange) (scoringBrier (probability bet) - scoringBrier (weightedProb pRange)) (scoringBrier (1 - probability bet) - scoringBrier (1 - weighted1mProb pRange))
     in if' ((subsidy ms) * probDiff > maxLoss bet)
       (min ((totalMarket ms) * maxLoss bet / ((subsidy ms) * probDiff - maxLoss bet)) (maxSubsidyMultiplier * subsidy ms))
       (error ((showFloat3Space (probability bet)) "Placing bet with above the allowed maxLoss"))
@@ -146,4 +146,3 @@ parse [x,y,z] = readInputAndWriteOutput x y (Just z)
 parse args = mapM_ putStrLn args
 
 main = getArgs >>= parse
-
